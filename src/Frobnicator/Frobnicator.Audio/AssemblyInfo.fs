@@ -1,4 +1,4 @@
-﻿namespace UI.AssemblyInfo
+﻿namespace Frobnicator.Audio.AssemblyInfo
 
 open System.Reflection
 open System.Runtime.CompilerServices
@@ -7,11 +7,11 @@ open System.Runtime.InteropServices
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[<assembly: AssemblyTitle("Frobnicator.UI")>]
+[<assembly: AssemblyTitle("Frobnicator.Audio")>]
 [<assembly: AssemblyDescription("")>]
 [<assembly: AssemblyConfiguration("")>]
 [<assembly: AssemblyCompany("")>]
-[<assembly: AssemblyProduct("Frobnicator.UI")>]
+[<assembly: AssemblyProduct("Frobnicator.Audio")>]
 [<assembly: AssemblyCopyright("Copyright © John Stovin 2017")>]
 [<assembly: AssemblyTrademark("")>]
 [<assembly: AssemblyCulture("")>]
@@ -22,7 +22,7 @@ open System.Runtime.InteropServices
 [<assembly: ComVisible(false)>]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[<assembly: Guid("156272ac-191f-477b-8986-af5dac25e9ea")>]
+[<assembly: Guid("d81a27c7-35a7-4994-baa8-c0e3d6cf3992")>]
 
 // Version information for an assembly consists of the following four values:
 // 
