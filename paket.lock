@@ -1,0 +1,4 @@
+NUGET
+  remote: https://api.nuget.org/v3/index.json
+    Elmish.WPF (1.0.0-beta-2) - restriction: >= net461
+    System.ValueTuple (4.3.1) - restriction: >= net461

@@ -1,0 +1,5 @@
+source C:\Users\stovinj\.dotnet\NuGetFallbackFolder
+source https://api.nuget.org/v3/index.json
+
+nuget Elmish.WPF 1.0.0-beta-2 restriction: >= net461
+nuget System.ValueTuple 4.3.1 restriction: >= net461
