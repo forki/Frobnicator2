@@ -4,28 +4,40 @@ open System
 open NAudio.Wave
 open System.Globalization
 
-type Sine(waveFormat : WaveFormat)  = 
-    let mutable nSample = 0
+type Stream = float seq
+
+type Output(waveFormat : WaveFormat, stream : Stream)  = 
     let bytesPerSample = waveFormat.BitsPerSample / 8
 
     interface IWaveProvider with
         member __.WaveFormat with get() = waveFormat
         
         member __.Read (buffer, offset, count) =
-            let mutable outIndex = offset
-            let numSamples = count / bytesPerSample
-            let multiple = 2.0 * Math.PI * 440.0 / (float)waveFormat.SampleRate
+            let nSamples = count / (bytesPerSample * waveFormat.Channels)
+            let samples = stream |> Seq.take nSamples |> Seq.toArray
 
-            for sampleCount in [0 .. numSamples/(waveFormat.Channels)-1] do
-                let sampleValue = Math.Sin((float)nSample * multiple)
-                nSample <- nSample + 1
-                
+            let mutable outIndex = offset
+
+            for nSample in [0 .. nSamples-1] do
+                let bytes = BitConverter.GetBytes((float32)samples.[nSample])
                 for i in [0 .. waveFormat.Channels-1] do
-                    let bytes = BitConverter.GetBytes((float32)sampleValue)
                     for j in [0 .. bytes.Length-1] do
                         buffer.[outIndex] <- bytes.[j]
                         outIndex <- outIndex + 1
                    
             count
         
-    
+module Wave = 
+    let TwoPi = 2.0 * Math.PI
+
+    let sine (waveFormat : WaveFormat) freq = 
+        let delta = TwoPi * freq / (float)waveFormat.SampleRate
+        let rec gen theta =
+            seq {
+                yield Math.Sin theta
+                let newTheta = (theta + delta) % TwoPi 
+                yield! gen newTheta
+            }
+        gen 0.0
+
+
