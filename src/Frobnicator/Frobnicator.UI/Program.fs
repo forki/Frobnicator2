@@ -5,6 +5,7 @@ open Elmish
 open Elmish.WPF
 open NAudio.Wave
 open NAudio.Wave.SampleProviders
+open Frobnicator.Audio
 
 module Types =
     type Model = {buttonText : string; out: IWavePlayer }
@@ -17,7 +18,7 @@ module State =
     
     let init () =
         let out = new WasapiOut()
-        let sigGen = new SignalGenerator()
+        let sigGen = new Sine(WaveFormat.CreateIeeeFloatWaveFormat(44100, 2))
         out.Init(sigGen)
         { buttonText = "Start" ; out = out }
         
