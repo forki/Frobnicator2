@@ -3,10 +3,11 @@
 open System
 open Elmish
 open Elmish.WPF
-open Frobnicator.Audio
+open NAudio.Wave
+open NAudio.Wave.SampleProviders
 
 module Types =
-    type Model = {buttonText : string; running : bool; out : WaveOut}
+    type Model = {buttonText : string; out: IWavePlayer }
 
     type Msg = 
     | Click
@@ -14,16 +15,20 @@ module Types =
 module State =
     open Types
     
-    let init () = { buttonText = "Start"; running = false; out = new WaveOut() }
-
+    let init () =
+        let out = new WasapiOut()
+        let sigGen = new SignalGenerator()
+        out.Init(sigGen)
+        { buttonText = "Start" ; out = out }
+        
     let update msg model = 
-        match msg, model.running with
-        | Click, false ->
-            model.out.start()
-            { model with buttonText = "Stop"; running = true }
-        | Click, true -> 
-            model.out.stop()
-            { model with buttonText = "Start"; running = false }
+        match msg, model.out.PlaybackState with
+        | Click, PlaybackState.Playing ->
+            model.out.Stop()
+            { model with buttonText = "Start" }
+        | Click, _ -> 
+            model.out.Play()
+            { model with buttonText = "Stop" }
 
 module App = 
     open Types
