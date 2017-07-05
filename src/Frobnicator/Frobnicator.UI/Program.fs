@@ -30,7 +30,7 @@ module State =
         | Click, _ -> 
             model.out.Play()
             { model with buttonText = "Stop" }
-
+             
 module App = 
     open Types
     open State
