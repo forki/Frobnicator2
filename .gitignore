@@ -4,3 +4,4 @@ obj/
 *.user
 /packages
 /.paket/paket.exe
+.idea/

@@ -9,3 +9,6 @@ type WaveOut() =
     member this.start () =
         this.out.Init(new SilenceProvider(WaveFormat.CreateIeeeFloatWaveFormat(44100, 2)))
         this.out.Play()
+
+    member this.stop () =
+        this.out.Stop()
