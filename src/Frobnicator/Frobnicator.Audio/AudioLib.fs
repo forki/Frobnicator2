@@ -2,7 +2,6 @@
 
 open System
 open NAudio.Wave
-open System.Globalization
 
 type Stream = float seq
 
@@ -13,18 +12,23 @@ type Output(waveFormat : WaveFormat, stream : Stream)  =
         member __.WaveFormat with get() = waveFormat
         
         member __.Read (buffer, offset, count) =
+            let mutable insertIndex = 0
+            let putSample sample buffer =
+                let bytes = 
+                    match bytesPerSample, waveFormat.Encoding with
+                    | 4, WaveFormatEncoding.IeeeFloat -> BitConverter.GetBytes((float32)sample)
+                    | 8, WaveFormatEncoding.IeeeFloat -> BitConverter.GetBytes((float)sample)
+                    | _, _ -> Array.init bytesPerSample (fun _ -> (byte)0)
+                
+                Array.blit bytes 0 buffer insertIndex bytes.Length
+                insertIndex <- insertIndex + bytes.Length
+                
             let nSamples = count / (bytesPerSample * waveFormat.Channels)
-            let samples = stream |> Seq.take nSamples |> Seq.toArray
-
-            let mutable outIndex = offset
-
-            for nSample in [0 .. nSamples-1] do
-                let bytes = BitConverter.GetBytes((float32)samples.[nSample])
-                for i in [0 .. waveFormat.Channels-1] do
-                    for j in [0 .. bytes.Length-1] do
-                        buffer.[outIndex] <- bytes.[j]
-                        outIndex <- outIndex + 1
-                   
+            stream 
+                |> Seq.take nSamples 
+                |> Seq.iter (fun x ->
+                    [1  .. waveFormat.Channels] |> Seq.iter (fun _ -> putSample x buffer))  
+            
             count
         
 module Wave = 
@@ -32,12 +36,13 @@ module Wave =
 
     let sine (waveFormat : WaveFormat) freq = 
         let delta = TwoPi * freq / (float)waveFormat.SampleRate
-        let rec gen theta =
+        let mutable theta = 0.0
+        let rec gen =
             seq {
                 yield Math.Sin theta
-                let newTheta = (theta + delta) % TwoPi 
-                yield! gen newTheta
+                theta <- (theta + delta) % TwoPi 
+                yield! gen 
             }
-        gen 0.0
+        gen
 
 
