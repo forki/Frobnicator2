@@ -34,17 +34,39 @@ type Output(waveFormat : WaveFormat, stream : Stream)  =
 module Wave = 
     let TwoPi = 2.0 * Math.PI
 
-    let generate func (waveFormat : WaveFormat) freq : Stream = 
-        let delta = TwoPi * freq / (float)waveFormat.SampleRate
+    let generate func (waveFormat : WaveFormat) (freq : Stream) : Stream = 
         let mutable theta = 0.0
         let rec gen =
             seq {
+                let f = freq |> Seq.take 1 |> Seq.head
+                let delta = TwoPi * f / (float)waveFormat.SampleRate
                 yield func theta
                 theta <- (theta + delta) % TwoPi 
                 yield! gen 
             }
         gen
         
-    let sine (waveFormat : WaveFormat) (freq : float) = generate Math.Sin waveFormat freq 
+    let constStream value =
+        let rec gen () =
+            seq {
+                yield value
+                yield! gen ()
+            }
+        gen ()
 
+    let sampleAndHold (e : IObservable<float>) =
+        let mutable value = 0.0
+
+        e |> Observable.add (fun v -> value <- v)
+        
+        let rec gen () =
+            seq {
+                yield value
+                yield! gen ()
+            }
+        gen ()
+
+    let sine (waveFormat : WaveFormat) (freq : Stream) = generate Math.Sin waveFormat freq 
+
+    let constSine (waveFormat : WaveFormat) (freq : float) = sine waveFormat (constStream freq) 
 

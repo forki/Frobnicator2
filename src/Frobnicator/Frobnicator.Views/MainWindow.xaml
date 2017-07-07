@@ -8,6 +8,9 @@
         Title="MainWindow" Height="300" Width="300">
     <Grid>
         <Button Content="{Binding Text}" HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" Width="75" Command="{Binding Start}"/>
+        <Slider HorizontalAlignment="Left" Margin="10,99,0,0" VerticalAlignment="Top" Width="272" Minimum="0" Maximum="20000" TickFrequency="1000" RenderTransformOrigin="0.504,2.778" 
+                Value="{Binding Frequency, Mode=TwoWay}"/>
+        <Label Content="{Binding GetFreq}" HorizontalAlignment="Left" Margin="19,68,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.342,0.5" Width="95" Height="26"/>
 
     </Grid>
 </Window>

@@ -1,27 +1,35 @@
 ﻿namespace Frobnicator.UI
 
 open System
+open System.Reactive.Subjects
+open System.Reactive.Linq
 open Elmish
 open Elmish.WPF
 open NAudio.Wave
 
 module Types =
-    type Model = {buttonText : string; out: IWavePlayer }
+    type Model = {buttonText : string; frequency : float; out: IWavePlayer }
 
     type Msg = 
     | Click
+    | Frequency of float
 
 module State =
     open Types
     open Frobnicator.Audio
     open Frobnicator.Audio.Wave
+
+    let evt = new Subject<float>()
+
     
+        
     let init () =
         let out = new WasapiOut()
         let fmt = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2)
-        let sigGen = sine fmt 440.0
+        let freq = sampleAndHold (evt.StartWith(440.0))
+        let sigGen = sine fmt freq
         out.Init(new Output(fmt, sigGen))
-        { buttonText = "Start" ; out = out }
+        { buttonText = "Start" ; frequency = 440.0; out = out }
         
     let update msg model = 
         match msg, model.out.PlaybackState with
@@ -31,6 +39,9 @@ module State =
         | Click, _ -> 
             model.out.Play()
             { model with buttonText = "Stop" }
+        | Frequency f, _ ->
+            evt.OnNext f
+            { model with frequency = f }
              
 module App = 
     open Types
@@ -38,7 +49,9 @@ module App =
     
     let view _ _ =
         [ "Text" |> Binding.oneWay (fun m -> m.buttonText)
-          "Start" |> Binding.cmd (fun _ m -> Click) ]
+          "GetFreq" |> Binding.oneWay (fun m -> sprintf "%.2f" m.frequency)
+          "Start" |> Binding.cmd (fun _ _ -> Click)
+          "Frequency" |> Binding.twoWay (fun m -> m.frequency) (fun v m -> Frequency v )]
 
 
     [<EntryPoint; STAThread>]
