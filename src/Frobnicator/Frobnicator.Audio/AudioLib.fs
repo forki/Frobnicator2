@@ -24,9 +24,8 @@ type Output(waveFormat : WaveFormat, stream : Stream)  =
                 insertIndex <- insertIndex + bytes.Length
                 
             let nSamples = count / (bytesPerSample * waveFormat.Channels)
-            stream 
-                |> Seq.take nSamples 
-                |> Seq.iter (fun x ->
+            let samples = stream |> Seq.take nSamples |> Seq.toArray
+            samples |> Seq.iter (fun x ->
                     [1  .. waveFormat.Channels] |> Seq.iter (fun _ -> putSample x buffer))  
             
             count
@@ -36,15 +35,15 @@ module Wave =
 
     let generate func (waveFormat : WaveFormat) (freq : Stream) : Stream = 
         let mutable theta = 0.0
-        let rec gen =
-            seq {
-                let f = freq |> Seq.take 1 |> Seq.head
+        let rec gen () =
+           seq {
+                let f = freq |> Seq.head
                 let delta = TwoPi * f / (float)waveFormat.SampleRate
-                yield func theta
                 theta <- (theta + delta) % TwoPi 
-                yield! gen 
+                yield func theta
+                yield! gen ()
             }
-        gen
+        gen ()
         
     let constStream value =
         let rec gen () =

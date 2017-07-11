@@ -18,13 +18,12 @@ module State =
     open Types
     open Frobnicator.Audio
     open Frobnicator.Audio.Wave
+    open NAudio.CoreAudioApi
 
     let evt = new Subject<float>()
-
     
-        
     let init () =
-        let out = new WasapiOut()
+        let out = new WasapiOut(AudioClientShareMode.Exclusive, true, 5)
         let fmt = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2)
         let freq = sampleAndHold (evt.StartWith(440.0))
         let sigGen = sine fmt freq
@@ -57,5 +56,5 @@ module App =
     [<EntryPoint; STAThread>]
     let main argv = 
         Program.mkSimple init update view
-        |> Program.withConsoleTrace
+        //|> Program.withConsoleTrace
         |> Program.runWindow (Frobnicator.Views.MainWindow())
