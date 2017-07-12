@@ -6,6 +6,7 @@ open System.Reactive.Linq
 open Elmish
 open Elmish.WPF
 open NAudio.Wave
+open NAudio.CoreAudioApi
 
 module Types =
     type Model = {buttonText : string; frequency : float; out: IWavePlayer }
@@ -20,12 +21,10 @@ module State =
     open Frobnicator.Audio.Wave
 
     let evt = new Subject<float>()
-
-    
         
     let init () =
-        let out = new WasapiOut()
-        let fmt = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2)
+        let out = new WasapiOut(AudioClientShareMode.Shared, 1)
+        let fmt = WaveFormat.CreateIeeeFloatWaveFormat(48000, 2)
         let freq = sampleAndHold (evt.StartWith(440.0))
         let sigGen = sine fmt freq
         out.Init(new Output(fmt, sigGen))

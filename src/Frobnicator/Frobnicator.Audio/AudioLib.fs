@@ -1,12 +1,18 @@
 ﻿namespace Frobnicator.Audio
 
 open System
+open System.Collections.Generic
 open NAudio.Wave
 
 type Stream = float seq
 
 type Output(waveFormat : WaveFormat, stream : Stream)  = 
+    let enumerator = stream.GetEnumerator() // so we don't restart the srtream on every call to Read()
     let bytesPerSample = waveFormat.BitsPerSample / 8
+
+    let head (enum : IEnumerator<float>) =
+        enum.MoveNext() |> ignore
+        enum.Current
 
     interface IWaveProvider with
         member __.WaveFormat with get() = waveFormat
@@ -24,10 +30,10 @@ type Output(waveFormat : WaveFormat, stream : Stream)  =
                 insertIndex <- insertIndex + bytes.Length
                 
             let nSamples = count / (bytesPerSample * waveFormat.Channels)
-            stream 
-                |> Seq.take nSamples 
-                |> Seq.iter (fun x ->
-                    [1  .. waveFormat.Channels] |> Seq.iter (fun _ -> putSample x buffer))  
+            for nSample in [1 .. nSamples] do
+                let sample = enumerator |> head
+                for nChannel in [1  .. waveFormat.Channels] do
+                    putSample sample buffer
             
             count
         
@@ -35,38 +41,21 @@ module Wave =
     let TwoPi = 2.0 * Math.PI
 
     let generate func (waveFormat : WaveFormat) (freq : Stream) : Stream = 
-        let mutable theta = 0.0
-        let rec gen =
-            seq {
-                let f = freq |> Seq.take 1 |> Seq.head
-                let delta = TwoPi * f / (float)waveFormat.SampleRate
-                yield func theta
-                theta <- (theta + delta) % TwoPi 
-                yield! gen 
-            }
-        gen
-        
+        let generator theta =
+            let f = freq |> Seq.head
+            let delta = TwoPi * f / (float)waveFormat.SampleRate
+            (theta + delta) % TwoPi        
+
+        Seq.unfold (fun theta -> Some(func theta, generator theta)) 0.0
+
     let constStream value =
-        let rec gen () =
-            seq {
-                yield value
-                yield! gen ()
-            }
-        gen ()
+        Seq.unfold (fun _ -> Some(value, 0)) 0
 
     let sampleAndHold (e : IObservable<float>) =
         let mutable value = 0.0
-
         e |> Observable.add (fun v -> value <- v)
-        
-        let rec gen () =
-            seq {
-                yield value
-                yield! gen ()
-            }
-        gen ()
+
+        Seq.unfold (fun _ -> Some(value, 0)) 0
 
     let sine (waveFormat : WaveFormat) (freq : Stream) = generate Math.Sin waveFormat freq 
-
-    let constSine (waveFormat : WaveFormat) (freq : float) = sine waveFormat (constStream freq) 
 
