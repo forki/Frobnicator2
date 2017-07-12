@@ -19,6 +19,7 @@ module State =
     open Types
     open Frobnicator.Audio
     open Frobnicator.Audio.Wave
+    open NAudio.CoreAudioApi
 
     let evt = new Subject<float>()
         
@@ -56,5 +57,5 @@ module App =
     [<EntryPoint; STAThread>]
     let main argv = 
         Program.mkSimple init update view
-        |> Program.withConsoleTrace
+        //|> Program.withConsoleTrace
         |> Program.runWindow (Frobnicator.Views.MainWindow())
