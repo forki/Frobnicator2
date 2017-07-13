@@ -2,6 +2,7 @@
 
 open System
 open System.Collections.Generic
+open NAudio.Midi
 open NAudio.Wave
 
 type Stream = float seq
@@ -36,7 +37,7 @@ type Output(waveFormat : WaveFormat, stream : Stream)  =
                     putSample sample buffer
             
             count
-        
+
 module Wave = 
     let TwoPi = 2.0 * Math.PI
 
