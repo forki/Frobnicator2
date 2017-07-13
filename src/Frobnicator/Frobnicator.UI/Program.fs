@@ -33,7 +33,7 @@ module State =
         let output = new WasapiOut(AudioClientShareMode.Shared, 1)
         output.Init(new Output(fmt, sigGen))
 
-        let input = new MidiIn(0)
+        let input = new MidiIn(1)
 
         { buttonText = "Start" ; frequency = 440.0; output = output; input = input }
         
@@ -45,10 +45,12 @@ module State =
         | Click ->
             match model.output.PlaybackState with
             | PlaybackState.Playing -> 
+                model.input.Stop()
                 model.output.Stop()
                 { model with buttonText = "Start" }
             | _ ->
                 model.output.Play()
+                model.input.Start()
                 { model with buttonText = "Stop" }
         | Frequency f ->
             frequencyEvent.OnNext f
