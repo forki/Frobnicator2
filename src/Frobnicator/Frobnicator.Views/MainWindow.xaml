@@ -11,6 +11,9 @@
         <Slider HorizontalAlignment="Left" Margin="10,99,0,0" VerticalAlignment="Top" Width="272" Minimum="0" Maximum="20000" TickFrequency="1000" RenderTransformOrigin="0.504,2.778" 
                 Value="{Binding Frequency, Mode=TwoWay}"/>
         <Label Content="{Binding GetFreq}" HorizontalAlignment="Left" Margin="19,68,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.342,0.5" Width="95" Height="26"/>
+        <Slider HorizontalAlignment="Left" Margin="10,158,0,0" VerticalAlignment="Top" Width="272" Minimum="0" Maximum="100" TickFrequency="10" RenderTransformOrigin="0.504,2.778" 
+            Value="{Binding Volume, Mode=TwoWay}"/>
+        <Label Content="{Binding GetVol}" HorizontalAlignment="Left" Margin="19,127,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.342,0.5" Width="95" Height="26"/>
 
     </Grid>
 </Window>

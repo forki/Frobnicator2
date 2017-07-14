@@ -60,3 +60,7 @@ module Wave =
 
     let sine (waveFormat : WaveFormat) (freq : Stream) = generate Math.Sin waveFormat freq 
 
+    let gain (ctrl : Stream) (signal : Stream) =
+        Seq.zip ctrl signal |> Seq.map (fun (c, s) -> c * s)
+
+
