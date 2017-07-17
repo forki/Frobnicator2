@@ -6,6 +6,7 @@ open NAudio.Midi
 open NAudio.Wave
 
 type Stream = float seq
+type Sample = float array
 
 type Output(waveFormat : WaveFormat, stream : Stream)  = 
     let enumerator = stream.GetEnumerator() // so we don't restart the srtream on every call to Read()
@@ -64,8 +65,7 @@ module Wave =
         signal |> Seq.zip ctrl |> Seq.map (fun (c, s) -> c * s)
 
     
-    let envelope (waveFormat : WaveFormat) (e : IObservable<unit>) (signal : Stream) =
-        let env =  [|for i in [0..waveFormat.SampleRate] -> 1.0 - ((float)i / (float)waveFormat.SampleRate)|]
+    let envelope (waveFormat : WaveFormat) (e : IObservable<unit>) (env : Sample) (signal : Stream) =
         let mutable triggered = false
         e |> Observable.add (fun () -> triggered <- true)
 

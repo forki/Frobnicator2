@@ -33,7 +33,9 @@ module State =
         let fmt = WaveFormat.CreateIeeeFloatWaveFormat(48000, 2)
         let freq = sampleAndHold (frequencyEvent.StartWith(440.0))
         let vol = sampleAndHold (volumeEvent.StartWith(0.0))
-        let signalChain = freq |> sine fmt |> gain vol |> envelope fmt triggerEvent
+        let env = [| for i in [1..fmt.SampleRate] -> 1.0 - ((float)i / (float)fmt.SampleRate)|]
+
+        let signalChain = freq |> sine fmt |> gain vol |> envelope fmt triggerEvent env
              
         let output = new WasapiOut(AudioClientShareMode.Shared, 1)
         output.Init(new Output(fmt, signalChain))
