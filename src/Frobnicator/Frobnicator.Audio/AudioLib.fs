@@ -61,6 +61,20 @@ module Wave =
     let sine (waveFormat : WaveFormat) (freq : Stream) = generate Math.Sin waveFormat freq 
 
     let gain (ctrl : Stream) (signal : Stream) =
-        Seq.zip ctrl signal |> Seq.map (fun (c, s) -> c * s)
+        signal |> Seq.zip ctrl |> Seq.map (fun (c, s) -> c * s)
 
+    
+    let envelope (waveFormat : WaveFormat) (e : IObservable<unit>) (signal : Stream) =
+        let env =  [|for i in [0..waveFormat.SampleRate] -> 1.0 - ((float)i / (float)waveFormat.SampleRate)|]
+        let mutable triggered = false
+        e |> Observable.add (fun () -> triggered <- true)
 
+        let generator s = 
+            if triggered then
+                triggered <- false
+                0
+            else if s < 0 || s >= env.Length then -1
+            else s + 1
+        let value s = if s < 0 || s >= env.Length then 0.0 else env.[s]
+
+        Seq.unfold (fun s -> Some(value s, generator s)) -1 |> gain signal

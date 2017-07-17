@@ -13,10 +13,11 @@ module Types =
     type Model = {buttonText : string; frequency : float; volume : float; output: IWavePlayer; input: MidiIn option }
 
     type Msg = 
-    | Click
+    | StartStop
     | Frequency of float
     | Volume of float
     | Midi of MidiEvent
+    | Trigger
 
 module State =
     open Types
@@ -26,17 +27,17 @@ module State =
 
     let frequencyEvent = new Subject<float>()
     let volumeEvent = new Subject<float>()
+    let triggerEvent = new Subject<unit>()
         
     let init () =
         let fmt = WaveFormat.CreateIeeeFloatWaveFormat(48000, 2)
         let freq = sampleAndHold (frequencyEvent.StartWith(440.0))
         let vol = sampleAndHold (volumeEvent.StartWith(0.0))
-        let signalChain = freq |> sine fmt |> gain vol
+        let signalChain = freq |> sine fmt |> gain vol |> envelope fmt triggerEvent
              
         let output = new WasapiOut(AudioClientShareMode.Shared, 1)
         output.Init(new Output(fmt, signalChain))
-
-        
+                
         let input = 
             try
                 Some (new MidiIn(1))
@@ -50,7 +51,7 @@ module State =
 
     let update msg model = 
         match msg with
-        | Click ->
+        | StartStop ->
             match model.output.PlaybackState with
             | PlaybackState.Playing ->
                 match model.input with
@@ -83,6 +84,9 @@ module State =
                 { model with frequency = f }
             | _ ->
                 model
+        | Trigger -> 
+            triggerEvent.OnNext ()
+            model
              
 module App = 
     open Types
@@ -92,7 +96,8 @@ module App =
         [ "Text" |> Binding.oneWay (fun m -> m.buttonText)
           "GetFreq" |> Binding.oneWay (fun m -> sprintf "%.2f" m.frequency)
           "GetVol" |> Binding.oneWay (fun m -> sprintf "%.2f" m.volume)
-          "Start" |> Binding.cmd (fun _ _ -> Click)
+          "Start" |> Binding.cmd (fun _ _ -> StartStop)
+          "Trigger" |> Binding.cmd (fun _ _ -> Trigger)
           "Frequency" |> Binding.twoWay (fun m -> m.frequency) (fun v m -> Frequency v )
           "Volume" |> Binding.twoWay (fun m -> m.volume) (fun v m -> Volume v )]
 
