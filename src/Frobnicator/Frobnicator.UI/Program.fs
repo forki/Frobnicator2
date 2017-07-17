@@ -42,9 +42,11 @@ module State =
                 
         let input = 
             try
-                Some (new MidiIn(1))
+                Some (new MidiIn(0))
             with 
             | :? NAudio.MmException -> None
+
+        let devInfo = MidiIn.DeviceInfo(0)
         
         { buttonText = "Start" ; frequency = 440.0; volume = 0.0; output = output; input = input }
         
@@ -83,6 +85,7 @@ module State =
                     else
                         0.0
                 frequencyEvent.OnNext f
+                triggerEvent.OnNext ()
                 { model with frequency = f }
             | _ ->
                 model
