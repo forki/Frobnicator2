@@ -34,7 +34,7 @@ module State =
         let fmt = WaveFormat.CreateIeeeFloatWaveFormat(48000, 2)
         let freq = sampleAndHold (frequencyEvent.StartWith(440.0))
         let vol = sampleAndHold (volumeEvent.StartWith(0.0))
-        let env = {data = [| for i in [1..fmt.SampleRate] -> 1.0 - ((float)i / (float)fmt.SampleRate)|]; holdPoint = None }
+        let env = {data = [| for i in [1..fmt.SampleRate] -> 1.0 - ((float)i / (float)fmt.SampleRate)|]; holdPoint = Some (fmt.SampleRate / 2) }
 
         let signalChain = freq |> sine fmt |> gain vol |> envelope fmt triggerEvent env
              

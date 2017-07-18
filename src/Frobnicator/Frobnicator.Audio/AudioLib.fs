@@ -71,20 +71,31 @@ module Wave =
     
     let envelope (waveFormat : WaveFormat) (e : IObservable<Trigger>) (env : Envelope) (signal : Stream) =
         let mutable triggered = false
+        let mutable released = false
         e |> Observable.add (fun t -> 
             match t with
             | Fire -> triggered <- true
-            | Release -> ())
+            | Release -> released <- true)
 
-        let generator s = 
+        let inc s =
+            match s with 
+            | None -> None
+            | Some v -> Some (v + 1)
+
+        let generator (s : int option) = 
             if triggered then
                 triggered <- false
                 Some 0
+            else if released then
+                released <- false
+                inc s
             else
                 match s with
-                | None -> None
-                | Some v when v >= (env.data.Length - 1) -> None
-                | Some v -> Some (v + 1)
+                | Some v when v < (env.data.Length - 1) -> 
+                    match env.holdPoint with
+                    | Some p when p = v -> s
+                    | _ -> inc s
+                | _  -> None
 
         let value s = 
             match s with
