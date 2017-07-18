@@ -72,9 +72,16 @@ module Wave =
         let generator s = 
             if triggered then
                 triggered <- false
-                0
-            else if s < 0 || s >= env.Length then -1
-            else s + 1
-        let value s = if s < 0 || s >= env.Length then 0.0 else env.[s]
+                Some 0
+            else
+                match s with
+                | None -> None
+                | Some v when v >= (env.Length - 1) -> None
+                | Some v -> Some (v + 1)
 
-        Seq.unfold (fun s -> Some(value s, generator s)) -1 |> gain signal
+        let value s = 
+            match s with
+            | None -> 0.0
+            | Some v -> env.[v]
+
+        Seq.unfold (fun s -> Some(value s, generator s)) None |> gain signal

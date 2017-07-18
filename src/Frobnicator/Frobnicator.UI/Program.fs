@@ -46,8 +46,6 @@ module State =
             with 
             | :? NAudio.MmException -> None
 
-        let devInfo = MidiIn.DeviceInfo(0)
-        
         { buttonText = "Start" ; frequency = 440.0; volume = 0.0; output = output; input = input }
         
     let midiNoteToFrequency (noteNumber : int) : float =
