@@ -17,7 +17,8 @@ module Types =
     | Frequency of float
     | Volume of float
     | Midi of MidiEvent
-    | Trigger
+    | NoteOn
+    | NoteOff
 
 module State =
     open Types
@@ -27,13 +28,13 @@ module State =
 
     let frequencyEvent = new Subject<float>()
     let volumeEvent = new Subject<float>()
-    let triggerEvent = new Subject<unit>()
+    let triggerEvent = new Subject<Trigger>()
         
     let init () =
         let fmt = WaveFormat.CreateIeeeFloatWaveFormat(48000, 2)
         let freq = sampleAndHold (frequencyEvent.StartWith(440.0))
         let vol = sampleAndHold (volumeEvent.StartWith(0.0))
-        let env = [| for i in [1..fmt.SampleRate] -> 1.0 - ((float)i / (float)fmt.SampleRate)|]
+        let env = {data = [| for i in [1..fmt.SampleRate] -> 1.0 - ((float)i / (float)fmt.SampleRate)|]; holdPoint = None }
 
         let signalChain = freq |> sine fmt |> gain vol |> envelope fmt triggerEvent env
              
@@ -79,16 +80,20 @@ module State =
                 let noteEvent = msg :?> NoteEvent
                 let f = 
                     if NoteEvent.IsNoteOn(noteEvent) then
+                        triggerEvent.OnNext Fire
                         midiNoteToFrequency noteEvent.NoteNumber
                     else
+                        triggerEvent.OnNext Release
                         0.0
                 frequencyEvent.OnNext f
-                triggerEvent.OnNext ()
                 { model with frequency = f }
             | _ ->
                 model
-        | Trigger -> 
-            triggerEvent.OnNext ()
+        | NoteOn -> 
+            triggerEvent.OnNext Fire
+            model
+        | NoteOff -> 
+            triggerEvent.OnNext Release
             model
              
 module App = 
@@ -100,7 +105,8 @@ module App =
           "GetFreq" |> Binding.oneWay (fun m -> sprintf "%.2f" m.frequency)
           "GetVol" |> Binding.oneWay (fun m -> sprintf "%.2f" m.volume)
           "Start" |> Binding.cmd (fun _ _ -> StartStop)
-          "Trigger" |> Binding.cmd (fun _ _ -> Trigger)
+          "Trigger" |> Binding.cmd (fun _ _ -> NoteOn)
+          "Release" |> Binding.cmd (fun _ _ -> NoteOff)
           "Frequency" |> Binding.twoWay (fun m -> m.frequency) (fun v m -> Frequency v )
           "Volume" |> Binding.twoWay (fun m -> m.volume) (fun v m -> Volume v )]
 

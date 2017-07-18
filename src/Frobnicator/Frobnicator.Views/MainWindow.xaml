@@ -15,6 +15,7 @@
             Value="{Binding Volume, Mode=TwoWay}"/>
         <Label Content="{Binding GetVol}" HorizontalAlignment="Left" Margin="19,127,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.342,0.5" Width="95" Height="26"/>
         <Button Content="Trigger" HorizontalAlignment="Left" Margin="10,196,0,0" VerticalAlignment="Top" Width="75" Command="{Binding Trigger}"/>
+        <Button Content="Release" HorizontalAlignment="Left" Margin="103,196,0,0" VerticalAlignment="Top" Width="75" Command="{Binding Release}"/>
 
     </Grid>
 </Window>

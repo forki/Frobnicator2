@@ -7,6 +7,10 @@ open NAudio.Wave
 
 type Stream = float seq
 type Sample = float array
+type Envelope = { data : Sample; holdPoint : int option}
+type Trigger =
+    | Fire
+    | Release
 
 type Output(waveFormat : WaveFormat, stream : Stream)  = 
     let enumerator = stream.GetEnumerator() // so we don't restart the srtream on every call to Read()
@@ -65,9 +69,12 @@ module Wave =
         signal |> Seq.zip ctrl |> Seq.map (fun (c, s) -> c * s)
 
     
-    let envelope (waveFormat : WaveFormat) (e : IObservable<unit>) (env : Sample) (signal : Stream) =
+    let envelope (waveFormat : WaveFormat) (e : IObservable<Trigger>) (env : Envelope) (signal : Stream) =
         let mutable triggered = false
-        e |> Observable.add (fun () -> triggered <- true)
+        e |> Observable.add (fun t -> 
+            match t with
+            | Fire -> triggered <- true
+            | Release -> ())
 
         let generator s = 
             if triggered then
@@ -76,12 +83,12 @@ module Wave =
             else
                 match s with
                 | None -> None
-                | Some v when v >= (env.Length - 1) -> None
+                | Some v when v >= (env.data.Length - 1) -> None
                 | Some v -> Some (v + 1)
 
         let value s = 
             match s with
             | None -> 0.0
-            | Some v -> env.[v]
+            | Some v -> env.data.[v]
 
         Seq.unfold (fun s -> Some(value s, generator s)) None |> gain signal
