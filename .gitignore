@@ -5,3 +5,4 @@ obj/
 /packages
 /.paket/paket.exe
 .idea/
+.fake/
