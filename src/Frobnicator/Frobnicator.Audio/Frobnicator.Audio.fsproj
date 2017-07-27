@@ -52,7 +52,9 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <None Include="Script.fsx" />
-    <Compile Include="AudioLib.fs" />
+    <Compile Include="Types.fs" />
+    <Compile Include="Output.fs" />
+    <Compile Include="Wave.fs" />
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>

@@ -13,7 +13,7 @@ Target "Build" (fun _ ->
 
 
 Target "CopyXaml" (fun _ ->
-    Copy "./src/Frobnicator/Frobnicator.UI/bin/Release/" !!"./src/Frobnicator/Frobnicator.UI/*.xaml"
+    Copy "./src/Frobnicator/Frobnicator.UI/bin/Release/Views" !!"./src/Frobnicator/Frobnicator.UI/Views/*.xaml"
 )
 
 "Clean"
