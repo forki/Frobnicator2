@@ -6,3 +6,4 @@ nuget System.ValueTuple 4.3.1 restriction: >= net461
 nuget naudio
 nuget system.reactive
 nuget fake
+nuget fsxaml.wpf

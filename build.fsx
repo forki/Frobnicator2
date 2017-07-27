@@ -4,7 +4,11 @@ open Fake
 
 // Default target
 Target "Build" (fun _ ->
-    MSBuildWithDefaults "Build" ["./src/Frobnicator/Frobnicator.sln"] |> Log "AppBuild-Output: "
+    MSBuildRelease "" "Build" ["./src/Frobnicator/Frobnicator.sln"] |> Log "AppBuild-Output: "
+)
+
+Target "BuildDebug" (fun _ ->
+    MSBuildDebug "" "Build" ["./src/Frobnicator/Frobnicator.sln"] |> Log "AppBuild-Output: "
 )
 
 // start build

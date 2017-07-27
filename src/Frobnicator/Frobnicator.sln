@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26621.2
+VisualStudioVersion = 15.0.26724.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{816093EB-454B-451F-B701-0CD43017553E}"
 	ProjectSection(SolutionItems) = preProject
@@ -18,8 +18,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Frobnicator.UI", "Frobnicator.UI\Frobnicator.UI.fsproj", "{156272AC-191F-477B-8986-AF5DAC25E9EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frobnicator.Views", "Frobnicator.Views\Frobnicator.Views.csproj", "{17B681BE-49A4-411C-97B3-CEF08AE0116F}"
-EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Frobnicator.Audio", "Frobnicator.Audio\Frobnicator.Audio.fsproj", "{D81A27C7-35A7-4994-BAA8-C0E3D6CF3992}"
 EndProject
 Global
@@ -32,10 +30,6 @@ Global
 		{156272AC-191F-477B-8986-AF5DAC25E9EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{156272AC-191F-477B-8986-AF5DAC25E9EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{156272AC-191F-477B-8986-AF5DAC25E9EA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{17B681BE-49A4-411C-97B3-CEF08AE0116F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{17B681BE-49A4-411C-97B3-CEF08AE0116F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{17B681BE-49A4-411C-97B3-CEF08AE0116F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{17B681BE-49A4-411C-97B3-CEF08AE0116F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D81A27C7-35A7-4994-BAA8-C0E3D6CF3992}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D81A27C7-35A7-4994-BAA8-C0E3D6CF3992}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D81A27C7-35A7-4994-BAA8-C0E3D6CF3992}.Release|Any CPU.ActiveCfg = Release|Any CPU

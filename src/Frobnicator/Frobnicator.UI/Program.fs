@@ -39,7 +39,7 @@ module State =
         let signalChain = freq |> sine fmt |> gain vol |> envelope fmt triggerEvent env
              
         let output = new WasapiOut(AudioClientShareMode.Shared, 1)
-        output.Init(new Output(fmt, signalChain))
+        output.Init(Output(fmt, signalChain))
                 
         let input = 
             try
@@ -99,7 +99,8 @@ module State =
 module App = 
     open Types
     open State
-    
+    open FsXaml
+
     let view _ _ =
         [ "Text" |> Binding.oneWay (fun m -> m.buttonText)
           "GetFreq" |> Binding.oneWay (fun m -> sprintf "%.2f" m.frequency)
@@ -117,9 +118,11 @@ module App =
             | None -> ()
         Cmd.ofSub sub
 
+    type MainWindow = XAML<"MainWindow.xaml">
+    
     [<EntryPoint; STAThread>]
     let main argv = 
         Program.mkSimple init update view
         |> Program.withSubscription keys
         |> Program.withConsoleTrace
-        |> Program.runWindow (Frobnicator.Views.MainWindow())
+        |> Program.runWindow (MainWindow())
