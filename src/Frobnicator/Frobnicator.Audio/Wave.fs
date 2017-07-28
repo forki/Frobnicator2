@@ -19,6 +19,8 @@ let generate func (waveFormat : WaveFormat) (freq : Stream) : Stream =
 let constStream value =
     Seq.unfold (fun _ -> Some(value, 0)) 0
 
+let silence = constStream 0.0
+
 let sampleAndHold (e : IObservable<float>) =
     let mutable value = 0.0
     e |> Observable.add (fun v -> value <- v)
@@ -27,10 +29,28 @@ let sampleAndHold (e : IObservable<float>) =
 
 let sine (waveFormat : WaveFormat) (freq : Stream) = generate Math.Sin waveFormat freq 
 
-let gain (ctrl : Stream) (signal : Stream) =
-    signal |> Seq.zip ctrl |> Seq.map (fun (c, s) -> c * s)
+let combine (f : (float * float) -> float) (s1 : Stream) (s2: Stream) =
+     Seq.zip s1 s2 |> Seq.map f
 
-let envelope (waveFormat : WaveFormat) (e : IObservable<Trigger>) (env : Envelope) (signal : Stream) =
+let gain = combine (fun (c, s) -> c * s)
+
+let pluck (waveFormat : WaveFormat) freq =
+    let rnd = new Random()
+    let bufferLength = int((float)waveFormat.SampleRate / freq)
+    let buffer = [| for i in [1..bufferLength] -> rnd.NextDouble() - 0.5 |]
+
+    let gen s i =
+        buffer.[i] <- (s + buffer.[i]) / 2.0
+        buffer.[i]
+
+    let step i = (i + 1) % bufferLength
+
+    Seq.unfold (fun (sample, index) -> 
+        let newSample = gen sample index
+        let newState = (newSample, (step index))
+        Some(newSample, newState) ) (0.0, 0)
+
+let envelope (e : IObservable<Trigger>) (env : Envelope) (signal : Stream) =
     let mutable triggered = false
     let mutable released = false
     e |> Observable.add (fun t -> 

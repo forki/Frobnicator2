@@ -24,7 +24,8 @@ let init () =
     let vol = sampleAndHold (volumeEvent.StartWith(0.0))
     let env = {data = [| for i in [1..fmt.SampleRate] -> 1.0 - ((float)i / (float)fmt.SampleRate)|]; holdPoint = Some (fmt.SampleRate / 2) }
 
-    let signalChain = freq |> sine fmt |> gain vol |> envelope fmt triggerEvent env
+    //let signalChain = freq |> sine fmt |> gain vol |> envelope triggerEvent env
+    let signalChain = pluck fmt 440.0 |> gain vol
          
     let output = new WasapiOut(AudioClientShareMode.Shared, 1)
     output.Init(Output(fmt, signalChain))
